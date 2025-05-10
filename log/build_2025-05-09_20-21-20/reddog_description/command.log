@@ -1,6 +1,0 @@
-Invoking command in '/home/csl/rdog/test_ws/build/reddog_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/csl/rdog/test_ws/src/reddog_description -DCMAKE_INSTALL_PREFIX=/home/csl/rdog/test_ws/install/reddog_description
-Invoked command in '/home/csl/rdog/test_ws/build/reddog_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/csl/rdog/test_ws/src/reddog_description -DCMAKE_INSTALL_PREFIX=/home/csl/rdog/test_ws/install/reddog_description
-Invoking command in '/home/csl/rdog/test_ws/build/reddog_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/csl/rdog/test_ws/build/reddog_description -- -j12 -l12
-Invoked command in '/home/csl/rdog/test_ws/build/reddog_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/csl/rdog/test_ws/build/reddog_description -- -j12 -l12
-Invoking command in '/home/csl/rdog/test_ws/build/reddog_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/csl/rdog/test_ws/build/reddog_description
-Invoked command in '/home/csl/rdog/test_ws/build/reddog_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/csl/rdog/test_ws/build/reddog_description

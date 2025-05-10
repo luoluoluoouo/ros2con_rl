@@ -7,15 +7,55 @@ namespace rl_quadruped_controller
 {
 
 RLQuadrupedController::RLQuadrupedController() = default;
+using config_type = controller_interface::interface_configuration_type;
 
 controller_interface::InterfaceConfiguration RLQuadrupedController::command_interface_configuration() const
 {
-  return {controller_interface::interface_configuration_type::INDIVIDUAL, {}};
+  controller_interface::InterfaceConfiguration conf = {config_type::INDIVIDUAL, {}};
+
+  conf.names.reserve(joint_names_.size() * command_interface_types_.size());
+  for (const auto& joint_name : joint_names_)
+  {
+      for (const auto& interface_type : command_interface_types_)
+      {
+          if (!command_prefix_.empty())
+          {
+              conf.names.push_back(command_prefix_ + "/" + joint_name + "/" += interface_type);
+          }
+          else
+          {
+              conf.names.push_back(joint_name + "/" += interface_type);
+          }
+      }
+  }
+
+  return conf;
 }
 
 controller_interface::InterfaceConfiguration RLQuadrupedController::state_interface_configuration() const
 {
-  return {controller_interface::interface_configuration_type::INDIVIDUAL, {}};
+  controller_interface::InterfaceConfiguration conf = {config_type::INDIVIDUAL, {}};
+
+  conf.names.reserve(joint_names_.size() * state_interface_types_.size());
+  for (const auto& joint_name : joint_names_)
+  {
+      for (const auto& interface_type : state_interface_types_)
+      {
+          conf.names.push_back(joint_name + "/" += interface_type);
+      }
+  }
+
+  for (const auto& interface_type : imu_interface_types_)
+  {
+      conf.names.push_back(imu_name_ + "/" += interface_type);
+  }
+
+  for (const auto& interface_type : foot_force_interface_types_)
+  {
+      conf.names.push_back(foot_force_name_ + "/" += interface_type);
+  }
+
+  return conf;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuadrupedController::on_init()
@@ -23,13 +63,9 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
   try
   {
     auto node = get_node();
-    
-    std::string policy_path;
-    std::string config_path;
 
-    node->get_parameter_or<std::string>("policy_path", policy_path, "");
-    node->get_parameter_or<std::string>("config_path", config_path, "");
-
+    policy_path_ = auto_declare<std::string>("policy_path", "");
+    config_path_ = auto_declare<std::string>("config_path", "");
 
     cmd_sub_ = node->create_subscription<geometry_msgs::msg::Twist>(
       "/cmd_vel", 10, [this](const geometry_msgs::msg::Twist::SharedPtr msg)
@@ -38,6 +74,20 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
         latest_cmd_[1] = msg->linear.y;
         latest_cmd_[2] = msg->angular.z;
       });
+
+    joint_names_ = auto_declare<std::vector<std::string>>("joints", joint_names_);
+    feet_names_ = auto_declare<std::vector<std::string>>("feet_names", feet_names_);
+    command_interface_types_ =
+        auto_declare<std::vector<std::string>>("command_interfaces", command_interface_types_);
+    state_interface_types_ =
+        auto_declare<std::vector<std::string>>("state_interfaces", state_interface_types_);
+
+    command_prefix_ = auto_declare<std::string>("command_prefix", command_prefix_);
+    base_name_ = auto_declare<std::string>("base_name", base_name_);
+
+    // imu sensor
+    imu_name_ = auto_declare<std::string>("imu_name", imu_name_);
+    imu_interface_types_ = auto_declare<std::vector<std::string>>("imu_interfaces", state_interface_types_);
   }
   catch (const std::exception &e)
   {
@@ -54,23 +104,8 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
   {
     auto node = get_node();
 
-    std::string policy_path;
-    if (!node->get_parameter("policy_path", policy_path) || policy_path.empty()) {
-      RCLCPP_ERROR(node->get_logger(), "policy_path parameter not set or empty!");
-      return CallbackReturn::FAILURE;
-    }
-
-    std::string config_path;
-    if (!node->get_parameter("config_path", config_path) || config_path.empty()) {
-      RCLCPP_ERROR(node->get_logger(), "config_path parameter not set or empty!");
-      return CallbackReturn::FAILURE;
-    }
-
-    RCLCPP_INFO(node->get_logger(), "Loaded policy_path: %s", policy_path.c_str());
-    RCLCPP_INFO(node->get_logger(), "Loaded config_path: %s", config_path.c_str());
-
-    policy_ = torch::jit::load(policy_path);
-    YAML::Node config = YAML::LoadFile(config_path);
+    policy_ = torch::jit::load(policy_path_);
+    YAML::Node config = YAML::LoadFile(config_path_);
 
     action_scale_ = config["action_scale"].as<float>();
     default_angles_ = config["default_angles"].as<std::vector<float>>();
@@ -87,6 +122,53 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
   catch (const std::exception &e)
   {
     RCLCPP_ERROR(get_node()->get_logger(), "on_configure() failed: %s", e.what());
+    return CallbackReturn::FAILURE;
+  }
+
+  return CallbackReturn::SUCCESS;
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuadrupedController::on_activate(const rclcpp_lifecycle::State &)
+{
+  try
+  {
+    // clear out vectors in case of restart
+    ctrl_interfaces_.clear();
+
+    // assign command interfaces
+    for (auto& interface : command_interfaces_)
+    {
+        std::string interface_name = interface.get_interface_name();
+        if (const size_t pos = interface_name.find('/'); pos != std::string::npos)
+        {
+            command_interface_map_[interface_name.substr(pos + 1)]->push_back(interface);
+        }
+        else
+        {
+            command_interface_map_[interface_name]->push_back(interface);
+        }
+    }
+
+    // assign state interfaces
+    for (auto& interface : state_interfaces_)
+    {
+        if (interface.get_prefix_name() == imu_name_)
+        {
+            ctrl_interfaces_.imu_state_interface_.emplace_back(interface);
+        }
+        else if (interface.get_prefix_name() == foot_force_name_)
+        {
+            ctrl_interfaces_.foot_force_state_interface_.emplace_back(interface);
+        }
+        else
+        {
+            state_interface_map_[interface.get_interface_name()]->push_back(interface);
+        }
+    }
+  }
+  catch (const std::exception &e)
+  {
+    RCLCPP_ERROR(get_node()->get_logger(), "on_activate() failed: %s", e.what());
     return CallbackReturn::FAILURE;
   }
 

@@ -8,6 +8,39 @@
 #include <hardware_interface/loaned_command_interface.hpp>
 #include <hardware_interface/loaned_state_interface.hpp>
 
+struct CtrlInterfaces
+{
+  std::vector<std::reference_wrapper<hardware_interface::LoanedCommandInterface>> joint_torque_command_interface_;
+  std::vector<std::reference_wrapper<hardware_interface::LoanedCommandInterface>> joint_position_command_interface_;
+  std::vector<std::reference_wrapper<hardware_interface::LoanedCommandInterface>> joint_velocity_command_interface_;
+  std::vector<std::reference_wrapper<hardware_interface::LoanedCommandInterface>> joint_kp_command_interface_;
+  std::vector<std::reference_wrapper<hardware_interface::LoanedCommandInterface>> joint_kd_command_interface_;
+
+  std::vector<std::reference_wrapper<hardware_interface::LoanedStateInterface>> joint_position_state_interface_;
+  std::vector<std::reference_wrapper<hardware_interface::LoanedStateInterface>> joint_effort_state_interface_;
+  std::vector<std::reference_wrapper<hardware_interface::LoanedStateInterface>> joint_velocity_state_interface_;
+
+  std::vector<std::reference_wrapper<hardware_interface::LoanedStateInterface>> imu_state_interface_;
+  std::vector<std::reference_wrapper<hardware_interface::LoanedStateInterface>> foot_force_state_interface_;
+
+  void clear()
+  {
+    joint_torque_command_interface_.clear();
+    joint_position_command_interface_.clear();
+    joint_velocity_command_interface_.clear();
+    joint_kp_command_interface_.clear();
+    joint_kd_command_interface_.clear();
+
+    joint_position_state_interface_.clear();
+    joint_effort_state_interface_.clear();
+    joint_velocity_state_interface_.clear();
+
+    imu_state_interface_.clear();
+    foot_force_state_interface_.clear();
+  }
+};
+
+
 namespace rl_quadruped_controller
 {
 
@@ -20,6 +53,7 @@ public:
   controller_interface::InterfaceConfiguration state_interface_configuration() const override;
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_init() override;
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_activate(const rclcpp_lifecycle::State &) override;
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_configure(const rclcpp_lifecycle::State &) override;
 
   controller_interface::return_type update(const rclcpp::Time &, const rclcpp::Duration &) override;
@@ -27,8 +61,46 @@ public:
 private:
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_sub_;
 
+  std::string policy_path_;
+  std::string config_path_;
+
+  std::vector<std::string> joint_names_;
+  std::string base_name_ = "base";
+  std::vector<std::string> feet_names_;
+  std::vector<std::string> command_interface_types_;
+  std::vector<std::string> state_interface_types_;
+
+  std::string command_prefix_;
+
+  // IMU Sensor
+  std::string imu_name_;
+  std::vector<std::string> imu_interface_types_;
+  // Foot Force Sensor
+  std::string foot_force_name_;
+  std::vector<std::string> foot_force_interface_types_;
+
   std::vector<hardware_interface::LoanedCommandInterface> command_interfaces_;
   std::vector<hardware_interface::LoanedStateInterface> state_interfaces_;
+
+
+  CtrlInterfaces ctrl_interfaces_;
+  std::unordered_map<
+    std::string, std::vector<std::reference_wrapper<hardware_interface::LoanedCommandInterface>>*>
+  command_interface_map_ = {
+    {"effort", &ctrl_interfaces_.joint_torque_command_interface_},
+    {"position", &ctrl_interfaces_.joint_position_command_interface_},
+    {"velocity", &ctrl_interfaces_.joint_velocity_command_interface_},
+    {"kp", &ctrl_interfaces_.joint_kp_command_interface_},
+    {"kd", &ctrl_interfaces_.joint_kd_command_interface_}
+  };
+
+  std::unordered_map<
+    std::string, std::vector<std::reference_wrapper<hardware_interface::LoanedStateInterface>>*>
+  state_interface_map_ = {
+    {"position", &ctrl_interfaces_.joint_position_state_interface_},
+    {"effort", &ctrl_interfaces_.joint_effort_state_interface_},
+    {"velocity", &ctrl_interfaces_.joint_velocity_state_interface_}
+  };
 
   std::vector<float> latest_cmd_{0.0, 0.0, 0.0};
   std::vector<float> default_angles_, cmd_scale_;
