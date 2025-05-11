@@ -66,7 +66,8 @@ def launch_setup(context, *args, **kwargs):
     controller = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["rl_quadruped_controller", "--controller-manager", "/controller_manager"],
+        arguments=["rl_quadruped_controller", 
+                   "--controller-manager", "/controller_manager"],
     )
 
     return [

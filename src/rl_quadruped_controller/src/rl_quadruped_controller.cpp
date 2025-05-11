@@ -20,11 +20,11 @@ controller_interface::InterfaceConfiguration RLQuadrupedController::command_inte
       {
           if (!command_prefix_.empty())
           {
-              conf.names.push_back(command_prefix_ + "/" + joint_name + "/" += interface_type);
+              conf.names.push_back(command_prefix_ + "/" + joint_name + "/" + interface_type);
           }
           else
           {
-              conf.names.push_back(joint_name + "/" += interface_type);
+              conf.names.push_back(joint_name + "/" + interface_type);
           }
       }
   }
@@ -41,18 +41,18 @@ controller_interface::InterfaceConfiguration RLQuadrupedController::state_interf
   {
       for (const auto& interface_type : state_interface_types_)
       {
-          conf.names.push_back(joint_name + "/" += interface_type);
+          conf.names.push_back(joint_name + "/" + interface_type);
       }
   }
 
   for (const auto& interface_type : imu_interface_types_)
   {
-      conf.names.push_back(imu_name_ + "/" += interface_type);
+      conf.names.push_back(imu_name_ + "/" + interface_type);
   }
 
   for (const auto& interface_type : foot_force_interface_types_)
   {
-      conf.names.push_back(foot_force_name_ + "/" += interface_type);
+      conf.names.push_back(foot_force_name_ + "/" + interface_type);
   }
 
   return conf;
@@ -131,7 +131,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuadrupedController::on_activate(const rclcpp_lifecycle::State &)
 {
   try
-  {
+  { 
     // clear out vectors in case of restart
     ctrl_interfaces_.clear();
 
