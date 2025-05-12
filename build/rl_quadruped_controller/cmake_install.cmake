@@ -1,8 +1,8 @@
-# Install script for directory: /home/luo/rdog/ros2con_rl/src/rl_quadruped_controller
+# Install script for directory: /home/csl/rdog/test_ws/src/rl_quadruped_controller
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/luo/rdog/ros2con_rl/install/rl_quadruped_controller")
+  set(CMAKE_INSTALL_PREFIX "/home/csl/rdog/test_ws/install/rl_quadruped_controller")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -49,12 +49,12 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librl_quadruped_controller.so"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/luo/rdog/ros2con_rl/build/rl_quadruped_controller/librl_quadruped_controller.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/csl/rdog/test_ws/build/rl_quadruped_controller/librl_quadruped_controller.so")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librl_quadruped_controller.so" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librl_quadruped_controller.so")
     file(RPATH_CHANGE
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librl_quadruped_controller.so"
-         OLD_RPATH "/lib/intel64:/lib/intel64_win:/lib/win-x64:/opt/ros/humble/lib:/home/luo/rdog/libtorch/lib:"
+         OLD_RPATH "/lib/intel64:/lib/intel64_win:/lib/win-x64:/opt/ros/humble/lib:/home/csl/rdog/libtorch/lib:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librl_quadruped_controller.so")
@@ -66,35 +66,35 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/" TYPE DIRECTORY FILES "/home/luo/rdog/ros2con_rl/src/rl_quadruped_controller/include/")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/" TYPE DIRECTORY FILES "/home/csl/rdog/test_ws/src/rl_quadruped_controller/include/")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/src/rl_quadruped_controller/resource/rl_quadruped_controller.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE FILE FILES "/home/csl/rdog/test_ws/src/rl_quadruped_controller/resource/rl_quadruped_controller.xml")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE DIRECTORY FILES
-    "/home/luo/rdog/ros2con_rl/src/rl_quadruped_controller/launch"
-    "/home/luo/rdog/ros2con_rl/src/rl_quadruped_controller/config"
-    "/home/luo/rdog/ros2con_rl/src/rl_quadruped_controller/pre_train"
+    "/home/csl/rdog/test_ws/src/rl_quadruped_controller/launch"
+    "/home/csl/rdog/test_ws/src/rl_quadruped_controller/config"
+    "/home/csl/rdog/test_ws/src/rl_quadruped_controller/pre_train"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/src/rl_quadruped_controller/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE FILE FILES "/home/csl/rdog/test_ws/src/rl_quadruped_controller/package.xml")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller/resource" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/src/rl_quadruped_controller/resource/rl_quadruped_controller.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller/resource" TYPE FILE FILES "/home/csl/rdog/test_ws/src/rl_quadruped_controller/resource/rl_quadruped_controller.xml")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/package_run_dependencies" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/rl_quadruped_controller/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/rl_quadruped_controller")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/package_run_dependencies" TYPE FILE FILES "/home/csl/rdog/test_ws/build/rl_quadruped_controller/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/rl_quadruped_controller")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/parent_prefix_path" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/rl_quadruped_controller/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/rl_quadruped_controller")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/parent_prefix_path" TYPE FILE FILES "/home/csl/rdog/test_ws/build/rl_quadruped_controller/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/rl_quadruped_controller")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -102,7 +102,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller/environment" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/rl_quadruped_controller/ament_cmake_environment_hooks/ament_prefix_path.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller/environment" TYPE FILE FILES "/home/csl/rdog/test_ws/build/rl_quadruped_controller/ament_cmake_environment_hooks/ament_prefix_path.dsv")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -110,46 +110,46 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller/environment" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/rl_quadruped_controller/ament_cmake_environment_hooks/path.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller/environment" TYPE FILE FILES "/home/csl/rdog/test_ws/build/rl_quadruped_controller/ament_cmake_environment_hooks/path.dsv")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/rl_quadruped_controller/ament_cmake_environment_hooks/local_setup.bash")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE FILE FILES "/home/csl/rdog/test_ws/build/rl_quadruped_controller/ament_cmake_environment_hooks/local_setup.bash")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/rl_quadruped_controller/ament_cmake_environment_hooks/local_setup.sh")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE FILE FILES "/home/csl/rdog/test_ws/build/rl_quadruped_controller/ament_cmake_environment_hooks/local_setup.sh")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/rl_quadruped_controller/ament_cmake_environment_hooks/local_setup.zsh")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE FILE FILES "/home/csl/rdog/test_ws/build/rl_quadruped_controller/ament_cmake_environment_hooks/local_setup.zsh")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/rl_quadruped_controller/ament_cmake_environment_hooks/local_setup.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE FILE FILES "/home/csl/rdog/test_ws/build/rl_quadruped_controller/ament_cmake_environment_hooks/local_setup.dsv")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/rl_quadruped_controller/ament_cmake_environment_hooks/package.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE FILE FILES "/home/csl/rdog/test_ws/build/rl_quadruped_controller/ament_cmake_environment_hooks/package.dsv")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/packages" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/rl_quadruped_controller/ament_cmake_index/share/ament_index/resource_index/packages/rl_quadruped_controller")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/packages" TYPE FILE FILES "/home/csl/rdog/test_ws/build/rl_quadruped_controller/ament_cmake_index/share/ament_index/resource_index/packages/rl_quadruped_controller")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/controller_interface__pluginlib__plugin" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/rl_quadruped_controller/ament_cmake_index/share/ament_index/resource_index/controller_interface__pluginlib__plugin/rl_quadruped_controller")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/controller_interface__pluginlib__plugin" TYPE FILE FILES "/home/csl/rdog/test_ws/build/rl_quadruped_controller/ament_cmake_index/share/ament_index/resource_index/controller_interface__pluginlib__plugin/rl_quadruped_controller")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller/cmake" TYPE FILE FILES
-    "/home/luo/rdog/ros2con_rl/build/rl_quadruped_controller/ament_cmake_core/rl_quadruped_controllerConfig.cmake"
-    "/home/luo/rdog/ros2con_rl/build/rl_quadruped_controller/ament_cmake_core/rl_quadruped_controllerConfig-version.cmake"
+    "/home/csl/rdog/test_ws/build/rl_quadruped_controller/ament_cmake_core/rl_quadruped_controllerConfig.cmake"
+    "/home/csl/rdog/test_ws/build/rl_quadruped_controller/ament_cmake_core/rl_quadruped_controllerConfig-version.cmake"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/src/rl_quadruped_controller/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rl_quadruped_controller" TYPE FILE FILES "/home/csl/rdog/test_ws/src/rl_quadruped_controller/package.xml")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -160,5 +160,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/luo/rdog/ros2con_rl/build/rl_quadruped_controller/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/csl/rdog/test_ws/build/rl_quadruped_controller/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

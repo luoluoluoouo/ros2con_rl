@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/luo/rdog/ros2con_rl/src/reddog_description
+CMAKE_SOURCE_DIR = /home/csl/rdog/test_ws/src/reddog_description
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/luo/rdog/ros2con_rl/build/reddog_description
+CMAKE_BINARY_DIR = /home/csl/rdog/test_ws/build/reddog_description
 
 # Utility rule file for reddog_description_uninstall.
 
@@ -67,7 +67,7 @@ include CMakeFiles/reddog_description_uninstall.dir/compiler_depend.make
 include CMakeFiles/reddog_description_uninstall.dir/progress.make
 
 CMakeFiles/reddog_description_uninstall:
-	/usr/bin/cmake -P /home/luo/rdog/ros2con_rl/build/reddog_description/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
+	/usr/bin/cmake -P /home/csl/rdog/test_ws/build/reddog_description/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
 
 reddog_description_uninstall: CMakeFiles/reddog_description_uninstall
 reddog_description_uninstall: CMakeFiles/reddog_description_uninstall.dir/build.make
@@ -82,6 +82,6 @@ CMakeFiles/reddog_description_uninstall.dir/clean:
 .PHONY : CMakeFiles/reddog_description_uninstall.dir/clean
 
 CMakeFiles/reddog_description_uninstall.dir/depend:
-	cd /home/luo/rdog/ros2con_rl/build/reddog_description && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/luo/rdog/ros2con_rl/src/reddog_description /home/luo/rdog/ros2con_rl/src/reddog_description /home/luo/rdog/ros2con_rl/build/reddog_description /home/luo/rdog/ros2con_rl/build/reddog_description /home/luo/rdog/ros2con_rl/build/reddog_description/CMakeFiles/reddog_description_uninstall.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/csl/rdog/test_ws/build/reddog_description && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/csl/rdog/test_ws/src/reddog_description /home/csl/rdog/test_ws/src/reddog_description /home/csl/rdog/test_ws/build/reddog_description /home/csl/rdog/test_ws/build/reddog_description /home/csl/rdog/test_ws/build/reddog_description/CMakeFiles/reddog_description_uninstall.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/reddog_description_uninstall.dir/depend
 

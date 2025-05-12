@@ -23,8 +23,8 @@ rl_quadruped_controller:
     update_rate: 200  # Hz
     robot_pkg: "reddog_description"
     model_folder: "legged_gym"
-    policy_path: /home/luo/rdog/ros2con_rl/src/reddog_description/config/legged_gym/policy_him2.pt
-    config_path: /home/luo/rdog/ros2con_rl/src/reddog_description/config/legged_gym/reddog_him.yaml
+    policy_path: /home/csl/rdog/test_ws/src/reddog_description/config/legged_gym/policy_him2.pt
+    config_path: /home/csl/rdog/test_ws/src/reddog_description/config/legged_gym/reddog_him.yaml
     
     joints:
       - FL_hip_joint
@@ -41,16 +41,16 @@ rl_quadruped_controller:
       - RR_calf_joint
 
     command_interfaces:
-      - effort
       - position
       - velocity
+      - effort
       - kp
       - kd
 
     state_interfaces:
-      - effort
       - position
       - velocity
+      - effort
 
     feet_names:
       - FL_foot

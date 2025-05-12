@@ -101,9 +101,9 @@ private:
   std::unordered_map<
     std::string, std::vector<std::reference_wrapper<hardware_interface::LoanedCommandInterface>>*>
   command_interface_map_ = {
-    {"effort", &ctrl_interfaces_.joint_torque_command_interface_},
     {"position", &ctrl_interfaces_.joint_position_command_interface_},
     {"velocity", &ctrl_interfaces_.joint_velocity_command_interface_},
+    {"effort", &ctrl_interfaces_.joint_torque_command_interface_},
     {"kp", &ctrl_interfaces_.joint_kp_command_interface_},
     {"kd", &ctrl_interfaces_.joint_kd_command_interface_}
   };
@@ -112,8 +112,8 @@ private:
     std::string, std::vector<std::reference_wrapper<hardware_interface::LoanedStateInterface>>*>
   state_interface_map_ = {
     {"position", &ctrl_interfaces_.joint_position_state_interface_},
-    {"effort", &ctrl_interfaces_.joint_effort_state_interface_},
-    {"velocity", &ctrl_interfaces_.joint_velocity_state_interface_}
+    {"velocity", &ctrl_interfaces_.joint_velocity_state_interface_},
+    {"effort", &ctrl_interfaces_.joint_effort_state_interface_}
   };
 
   std::vector<float> latest_cmd_{0.0, 0.0, 0.0};

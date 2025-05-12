@@ -184,6 +184,7 @@ controller_interface::return_type RLQuadrupedController::update(const rclcpp::Ti
     pos[i] = state_interfaces_[i].get_value();
     vel[i] = state_interfaces_[i + 12].get_value();
   }
+  // RCLCPP_INFO(get_node()->get_logger(), "pos[0]=%.3f", pos[0]);
   for (int i = 0; i < 4; ++i)
     quat[i] = state_interfaces_[24 + i].get_value();
   for (int i = 0; i < 3; ++i)
@@ -210,14 +211,17 @@ controller_interface::return_type RLQuadrupedController::update(const rclcpp::Ti
 
   auto action = policy_.forward({obs_buffer_}).toTensor().squeeze();
   prev_action_ = action;
+  
+
+  // [0.1, 0.785, -1.57, -0.1, 0.785, -1.57, 0.1, -0.785, 1.57, -0.1, -0.785, 1.57]
+  std::vector<float> test_action = {0.1, 0.785, -1.57, -0.1, 0.785, -1.57, 0.1, -0.785, 1.57, -0.1, -0.785, 1.57};
 
   for (int i = 0; i < 12; ++i)
   {
-    double cmd = action[i].item<float>() * action_scale_ + default_angles_[i];
-    command_interfaces_[i].set_value(cmd);
+    ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(test_action[i]);
+    ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(30.0);
+    ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.5);
   }
-
-  RCLCPP_INFO(get_node()->get_logger(), "Action[0]=%.3f", action[0].item<float>());
 
   return controller_interface::return_type::OK;
 }

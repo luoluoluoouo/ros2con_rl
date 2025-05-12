@@ -1,8 +1,8 @@
-# Install script for directory: /home/luo/rdog/ros2con_rl/src/reddog_description
+# Install script for directory: /home/csl/rdog/test_ws/src/reddog_description
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/luo/rdog/ros2con_rl/install/reddog_description")
+  set(CMAKE_INSTALL_PREFIX "/home/csl/rdog/test_ws/install/reddog_description")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -44,20 +44,20 @@ endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description/" TYPE DIRECTORY FILES
-    "/home/luo/rdog/ros2con_rl/src/reddog_description/meshes"
-    "/home/luo/rdog/ros2con_rl/src/reddog_description/xacro"
-    "/home/luo/rdog/ros2con_rl/src/reddog_description/launch"
-    "/home/luo/rdog/ros2con_rl/src/reddog_description/config"
-    "/home/luo/rdog/ros2con_rl/src/reddog_description/urdf"
+    "/home/csl/rdog/test_ws/src/reddog_description/meshes"
+    "/home/csl/rdog/test_ws/src/reddog_description/xacro"
+    "/home/csl/rdog/test_ws/src/reddog_description/launch"
+    "/home/csl/rdog/test_ws/src/reddog_description/config"
+    "/home/csl/rdog/test_ws/src/reddog_description/urdf"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/package_run_dependencies" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/reddog_description/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/reddog_description")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/package_run_dependencies" TYPE FILE FILES "/home/csl/rdog/test_ws/build/reddog_description/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/reddog_description")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/parent_prefix_path" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/reddog_description/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/reddog_description")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/parent_prefix_path" TYPE FILE FILES "/home/csl/rdog/test_ws/build/reddog_description/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/reddog_description")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -65,7 +65,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description/environment" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/reddog_description/ament_cmake_environment_hooks/ament_prefix_path.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description/environment" TYPE FILE FILES "/home/csl/rdog/test_ws/build/reddog_description/ament_cmake_environment_hooks/ament_prefix_path.dsv")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -73,42 +73,42 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description/environment" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/reddog_description/ament_cmake_environment_hooks/path.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description/environment" TYPE FILE FILES "/home/csl/rdog/test_ws/build/reddog_description/ament_cmake_environment_hooks/path.dsv")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/reddog_description/ament_cmake_environment_hooks/local_setup.bash")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description" TYPE FILE FILES "/home/csl/rdog/test_ws/build/reddog_description/ament_cmake_environment_hooks/local_setup.bash")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/reddog_description/ament_cmake_environment_hooks/local_setup.sh")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description" TYPE FILE FILES "/home/csl/rdog/test_ws/build/reddog_description/ament_cmake_environment_hooks/local_setup.sh")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/reddog_description/ament_cmake_environment_hooks/local_setup.zsh")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description" TYPE FILE FILES "/home/csl/rdog/test_ws/build/reddog_description/ament_cmake_environment_hooks/local_setup.zsh")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/reddog_description/ament_cmake_environment_hooks/local_setup.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description" TYPE FILE FILES "/home/csl/rdog/test_ws/build/reddog_description/ament_cmake_environment_hooks/local_setup.dsv")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/reddog_description/ament_cmake_environment_hooks/package.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description" TYPE FILE FILES "/home/csl/rdog/test_ws/build/reddog_description/ament_cmake_environment_hooks/package.dsv")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/packages" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/build/reddog_description/ament_cmake_index/share/ament_index/resource_index/packages/reddog_description")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/packages" TYPE FILE FILES "/home/csl/rdog/test_ws/build/reddog_description/ament_cmake_index/share/ament_index/resource_index/packages/reddog_description")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description/cmake" TYPE FILE FILES
-    "/home/luo/rdog/ros2con_rl/build/reddog_description/ament_cmake_core/reddog_descriptionConfig.cmake"
-    "/home/luo/rdog/ros2con_rl/build/reddog_description/ament_cmake_core/reddog_descriptionConfig-version.cmake"
+    "/home/csl/rdog/test_ws/build/reddog_description/ament_cmake_core/reddog_descriptionConfig.cmake"
+    "/home/csl/rdog/test_ws/build/reddog_description/ament_cmake_core/reddog_descriptionConfig-version.cmake"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description" TYPE FILE FILES "/home/luo/rdog/ros2con_rl/src/reddog_description/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/reddog_description" TYPE FILE FILES "/home/csl/rdog/test_ws/src/reddog_description/package.xml")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -119,5 +119,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/luo/rdog/ros2con_rl/build/reddog_description/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/csl/rdog/test_ws/build/reddog_description/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
