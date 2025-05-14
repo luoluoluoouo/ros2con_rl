@@ -70,9 +70,9 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
     cmd_sub_ = node->create_subscription<geometry_msgs::msg::Twist>(
       "/cmd_vel", 10, [this](const geometry_msgs::msg::Twist::SharedPtr msg)
       {
-        latest_cmd_[0] = msg->linear.x;
-        latest_cmd_[1] = msg->linear.y;
-        latest_cmd_[2] = msg->angular.z;
+        cmd_[0] = msg->linear.x;
+        cmd_[1] = msg->linear.y;
+        cmd_[2] = msg->angular.z;
       });
 
     joint_names_ = auto_declare<std::vector<std::string>>("joints", joint_names_);
@@ -165,6 +165,15 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
             state_interface_map_[interface.get_interface_name()]->push_back(interface);
         }
     }
+
+    std::vector<float> test_action = {0.1, 0.785, -1.57, -0.1, 0.785, -1.57, 0.1, -0.785, 1.57, -0.1, -0.785, 1.57};
+
+    for (int i = 0; i < 12; ++i)
+    {
+      ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(test_action[i]);
+      ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(13.0);
+      ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.4);
+    }
   }
   catch (const std::exception &e)
   {
@@ -181,14 +190,16 @@ controller_interface::return_type RLQuadrupedController::update(const rclcpp::Ti
 
   for (int i = 0; i < 12; ++i)
   {
-    pos[i] = state_interfaces_[i].get_value();
-    vel[i] = state_interfaces_[i + 12].get_value();
+    pos[i] = ctrl_interfaces_.joint_position_state_interface_[i].get().get_value();
   }
-  // RCLCPP_INFO(get_node()->get_logger(), "pos[0]=%.3f", pos[0]);
-  for (int i = 0; i < 4; ++i)
-    quat[i] = state_interfaces_[24 + i].get_value();
-  for (int i = 0; i < 3; ++i)
-    ang_vel[i] = state_interfaces_[28 + i].get_value();
+
+  quat[0] = ctrl_interfaces_.imu_state_interface_[0].get().get_value();
+  quat[1] = ctrl_interfaces_.imu_state_interface_[1].get().get_value();
+  quat[2] = ctrl_interfaces_.imu_state_interface_[2].get().get_value();
+  quat[3] = ctrl_interfaces_.imu_state_interface_[3].get().get_value();
+  ang_vel[0] = ctrl_interfaces_.imu_state_interface_[4].get().get_value();
+  ang_vel[1] = ctrl_interfaces_.imu_state_interface_[5].get().get_value();
+  ang_vel[2] = ctrl_interfaces_.imu_state_interface_[6].get().get_value();
 
   std::vector<float> gravity(3);
   gravity[0] = 2 * (quat[1] * quat[3] - quat[0] * quat[2]);
@@ -206,21 +217,23 @@ controller_interface::return_type RLQuadrupedController::update(const rclcpp::Ti
 
   auto obs = torch::cat(obs_parts).unsqueeze(0);
   obs = torch::clamp(obs, -100, 100);
-
   obs_buffer_ = torch::cat({obs, obs_buffer_.slice(1, 0, obs_buf_size_ * one_step_obs_size_ - one_step_obs_size_)}, 1);
 
   auto action = policy_.forward({obs_buffer_}).toTensor().squeeze();
   prev_action_ = action;
-  
-
-  // [0.1, 0.785, -1.57, -0.1, 0.785, -1.57, 0.1, -0.785, 1.57, -0.1, -0.785, 1.57]
-  std::vector<float> test_action = {0.1, 0.785, -1.57, -0.1, 0.785, -1.57, 0.1, -0.785, 1.57, -0.1, -0.785, 1.57};
 
   for (int i = 0; i < 12; ++i)
   {
-    ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(test_action[i]);
-    ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(30.0);
-    ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.5);
+    ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(action[i].item<float>() * action_scale_ + default_angles_[i]);
+    ctrl_interfaces_.joint_velocity_command_interface_[i].get().set_value(0.0);
+    ctrl_interfaces_.joint_torque_command_interface_[i].get().set_value(0.0);
+    ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(13.0);
+    ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.4);
+  }
+
+  for (int i = 0; i < 3; ++i)
+  {
+    latest_cmd_[i] = cmd_[i];
   }
 
   return controller_interface::return_type::OK;

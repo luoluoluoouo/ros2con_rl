@@ -54,7 +54,6 @@ struct CtrlInterfaces
         joint_velocity_state_interface_.clear();
 
         imu_state_interface_.clear();
-        imu_state_interface_.clear();
         foot_force_state_interface_.clear();
     }
 };
@@ -116,6 +115,7 @@ private:
     {"effort", &ctrl_interfaces_.joint_effort_state_interface_}
   };
 
+  std::vector<float> cmd_{0.0, 0.0, 0.0};
   std::vector<float> latest_cmd_{0.0, 0.0, 0.0};
   std::vector<float> default_angles_, cmd_scale_;
   float action_scale_{1.0}, ang_vel_scale_{1.0}, dof_pos_scale_{1.0}, dof_vel_scale_{1.0};
