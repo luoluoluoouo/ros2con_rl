@@ -1,6 +1,7 @@
 #pragma once
 
 #include <controller_interface/controller_interface.hpp>
+#include <std_msgs/msg/string.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <torch/script.h>
 #include <rclcpp/rclcpp.hpp>
@@ -75,8 +76,17 @@ public:
 
   controller_interface::return_type update(const rclcpp::Time &, const rclcpp::Duration &) override;
 
+  std::vector<float> get_current_pos();
+  void sit(int step, std::vector<float> current_pos);
+  void stand(int step, std::vector<float> current_pos);
+  void move();
+
 private:
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_sub_;
+  rclcpp::Subscription<std_msgs::msg::String>::SharedPtr mode_sub_;
+  std::string mode_ = "sit";
+  std::string prev_mode_;
+  bool is_mode_change_ = false;
 
   std::string policy_path_;
   std::string config_path_;
@@ -117,7 +127,7 @@ private:
 
   std::vector<float> cmd_{0.0, 0.0, 0.0};
   std::vector<float> latest_cmd_{0.0, 0.0, 0.0};
-  std::vector<float> default_angles_, cmd_scale_;
+  std::vector<float> sit_angles_, default_angles_, cmd_scale_;
   float action_scale_{1.0}, ang_vel_scale_{1.0}, dof_pos_scale_{1.0}, dof_vel_scale_{1.0};
 
   torch::jit::script::Module policy_;
@@ -125,6 +135,18 @@ private:
   torch::Tensor prev_action_ = torch::zeros({12});
 
   int one_step_obs_size_{45}, obs_buf_size_{6};
+
+  std::vector<float> max_angles_{1.04, 2.39, -0.1, 1.04, 2.39, -0.1,
+                                 1.04, -0.1, 2.69, 1.04, -0.1, 2.39};
+  std::vector<float> min_angles_{-1.04, 0.1, -2.39, -1.04, 0.1, -2.39,
+                                 -1.04, -2.69, 0.1, -1.04, -2.69, 0.1};
+                         
+
+  std::vector<float> current_pos_;
+  int steps_ = 100; // 插值步數
+  int step_ = 0; // 當前步數
+  float duration_ = 5.0; // 總執行時間 (秒)
+  float step_time_ = duration_ / steps_; // 每步的時間間隔
 };
 
 }  // namespace rl_quadruped_controller

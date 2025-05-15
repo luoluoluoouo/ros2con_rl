@@ -75,6 +75,14 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
         cmd_[2] = msg->angular.z;
       });
 
+    // string: sit, stand, move  
+    mode_sub_ = node->create_subscription<std_msgs::msg::String>(
+      "/mode", 10, [this](const std_msgs::msg::String::SharedPtr msg)
+      {
+        mode_ = msg->data;
+      });
+    
+
     joint_names_ = auto_declare<std::vector<std::string>>("joints", joint_names_);
     feet_names_ = auto_declare<std::vector<std::string>>("feet_names", feet_names_);
     command_interface_types_ =
@@ -108,6 +116,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
     YAML::Node config = YAML::LoadFile(config_path_);
 
     action_scale_ = config["action_scale"].as<float>();
+    sit_angles_ = config["sit_angles"].as<std::vector<float>>();
     default_angles_ = config["default_angles"].as<std::vector<float>>();
     cmd_scale_ = config["cmd_scale"].as<std::vector<float>>();
     ang_vel_scale_ = config["ang_vel_scale"].as<float>();
@@ -166,11 +175,12 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
         }
     }
 
-    std::vector<float> test_action = {0.1, 0.785, -1.57, -0.1, 0.785, -1.57, 0.1, -0.785, 1.57, -0.1, -0.785, 1.57};
-
+    current_pos_ = get_current_pos();
     for (int i = 0; i < 12; ++i)
     {
-      ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(test_action[i]);
+      ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(current_pos_[i]);
+      ctrl_interfaces_.joint_velocity_command_interface_[i].get().set_value(0.0);
+      ctrl_interfaces_.joint_torque_command_interface_[i].get().set_value(0.0);
       ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(13.0);
       ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.4);
     }
@@ -186,6 +196,82 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
 
 controller_interface::return_type RLQuadrupedController::update(const rclcpp::Time &, const rclcpp::Duration &)
 {
+  if (mode_ != prev_mode_)
+  {
+    is_mode_change_ = true;
+    step_ = 0;
+    current_pos_ = get_current_pos();
+    prev_mode_ = mode_;
+  }
+  else
+  {
+    is_mode_change_ = false;
+  }
+
+  if (mode_ == "sit") {
+    sit(step_, current_pos_);
+  } else if (mode_ == "stand") {
+    stand(step_, current_pos_);
+  } else if (mode_ == "move") {
+    move();
+  } else {
+    RCLCPP_ERROR(get_node()->get_logger(), "Invalid mode: %s", mode_.c_str());
+  }
+
+  if (step_ < steps_) {
+    step_++;
+  }
+
+  return controller_interface::return_type::OK;
+}
+
+std::vector<float> RLQuadrupedController::get_current_pos()
+{
+  std::vector<float> pos(12);
+  for (int i = 0; i < 12; ++i)
+  {
+    pos[i] = ctrl_interfaces_.joint_position_state_interface_[i].get().get_value();
+  }
+  return pos;
+}
+
+void RLQuadrupedController::sit(int step, std::vector<float> current_pos)
+{
+  float phase = float(step)/float(steps_);
+  for (int i = 0; i < 12; ++i)
+  {
+    float target_pos = current_pos[i] * (1 - phase) + sit_angles_[i] * phase;
+    if (target_pos > max_angles_[i]){
+      target_pos = max_angles_[i];
+    } else if (target_pos < min_angles_[i]) {
+      target_pos = min_angles_[i];
+    }
+    ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(target_pos);
+    ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(13.0);
+    ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.4);
+  }
+  std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(step_time_ * 1000)));
+}
+
+void RLQuadrupedController::stand(int step, std::vector<float> current_pos)
+{
+  float phase = float(step)/float(steps_);
+  for (int i = 0; i < 12; ++i)
+  {
+    float target_pos = current_pos[i] * (1 - phase) + default_angles_[i] * phase;
+    if (target_pos > max_angles_[i]){
+      target_pos = max_angles_[i];
+    } else if (target_pos < min_angles_[i]) {
+      target_pos = min_angles_[i];
+    }
+    ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(target_pos);
+    ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(13.0);
+    ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.4);
+  }
+  std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(step_time_ * 1000)));
+}
+
+void RLQuadrupedController::move(){
   std::vector<float> pos(12), vel(12), ang_vel(3), quat(4);
 
   for (int i = 0; i < 12; ++i)
@@ -235,8 +321,6 @@ controller_interface::return_type RLQuadrupedController::update(const rclcpp::Ti
   {
     latest_cmd_[i] = cmd_[i];
   }
-
-  return controller_interface::return_type::OK;
 }
 
 } // namespace rl_quadruped_controller
