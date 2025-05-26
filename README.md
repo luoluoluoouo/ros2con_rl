@@ -15,3 +15,9 @@ And build/source/launch
 source rebuild.sh
 ros2 launch rl_quadruped_controller bringup.launch.py pkg_description:=reddog_description
 ```
+
+```
+ros2 topic pub /mode std_msgs/msg/String "data: 'sit'"
+ros2 topic pub /mode std_msgs/msg/String "data: 'stand'"
+ros2 topic pub /mode std_msgs/msg/String "data: 'move'"
+```

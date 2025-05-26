@@ -115,9 +115,11 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
     policy_ = torch::jit::load(policy_path_);
     YAML::Node config = YAML::LoadFile(config_path_);
 
-    action_scale_ = config["action_scale"].as<float>();
+    initial_angles_ = config["initial_angles"].as<std::vector<float>>();
     sit_angles_ = config["sit_angles"].as<std::vector<float>>();
     default_angles_ = config["default_angles"].as<std::vector<float>>();
+
+    action_scale_ = config["action_scale"].as<float>();
     cmd_scale_ = config["cmd_scale"].as<std::vector<float>>();
     ang_vel_scale_ = config["ang_vel_scale"].as<float>();
     dof_pos_scale_ = config["dof_pos_scale"].as<float>();
@@ -176,14 +178,16 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
     }
 
     current_pos_ = get_current_pos();
-    for (int i = 0; i < 12; ++i)
-    {
-      ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(current_pos_[i]);
-      ctrl_interfaces_.joint_velocity_command_interface_[i].get().set_value(0.0);
-      ctrl_interfaces_.joint_torque_command_interface_[i].get().set_value(0.0);
-      ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(13.0);
-      ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.4);
-    }
+    // for (int i = 0; i < 12; ++i)
+    // {
+    //   ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(current_pos_[i]);
+    //   ctrl_interfaces_.joint_velocity_command_interface_[i].get().set_value(0.0);
+    //   ctrl_interfaces_.joint_torque_command_interface_[i].get().set_value(0.0);
+    //   ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(13.0);
+    //   ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.4);
+    // }
+
+    start_time_ = std::chrono::high_resolution_clock::now();
   }
   catch (const std::exception &e)
   {
@@ -196,15 +200,26 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
 
 controller_interface::return_type RLQuadrupedController::update(const rclcpp::Time &, const rclcpp::Duration &)
 {
-  if (mode_ != prev_mode_)
-  {
+  running_time_ = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time_).count();
+
+  // if (running_time_ < 5.0) {
+  //   for (int i = 0; i < 12; ++i)
+  //   {
+  //     ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(sit_angles_[i]);
+  //     ctrl_interfaces_.joint_velocity_command_interface_[i].get().set_value(0.0);
+  //     ctrl_interfaces_.joint_torque_command_interface_[i].get().set_value(0.0);
+  //     ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(13.0);
+  //     ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.4);
+  //   }
+  //   return controller_interface::return_type::OK;
+  // }
+
+  if (mode_ != prev_mode_) {
     is_mode_change_ = true;
     step_ = 0;
     current_pos_ = get_current_pos();
     prev_mode_ = mode_;
-  }
-  else
-  {
+  } else {
     is_mode_change_ = false;
   }
 
@@ -235,17 +250,17 @@ std::vector<float> RLQuadrupedController::get_current_pos()
   return pos;
 }
 
-void RLQuadrupedController::sit(int step, std::vector<float> current_pos)
+void RLQuadrupedController::sit(int step, std::vector<float> current_pos) 
 {
   float phase = float(step)/float(steps_);
   for (int i = 0; i < 12; ++i)
   {
     float target_pos = current_pos[i] * (1 - phase) + sit_angles_[i] * phase;
-    if (target_pos > max_angles_[i]){
-      target_pos = max_angles_[i];
-    } else if (target_pos < min_angles_[i]) {
-      target_pos = min_angles_[i];
-    }
+    // if (target_pos > max_angles_[i]){
+    //   target_pos = max_angles_[i];
+    // } else if (target_pos < min_angles_[i]) {
+    //   target_pos = min_angles_[i];
+    // }
     ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(target_pos);
     ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(13.0);
     ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.4);
@@ -253,17 +268,17 @@ void RLQuadrupedController::sit(int step, std::vector<float> current_pos)
   std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(step_time_ * 1000)));
 }
 
-void RLQuadrupedController::stand(int step, std::vector<float> current_pos)
+void RLQuadrupedController::stand(int step, std::vector<float> current_pos) 
 {
   float phase = float(step)/float(steps_);
   for (int i = 0; i < 12; ++i)
   {
     float target_pos = current_pos[i] * (1 - phase) + default_angles_[i] * phase;
-    if (target_pos > max_angles_[i]){
-      target_pos = max_angles_[i];
-    } else if (target_pos < min_angles_[i]) {
-      target_pos = min_angles_[i];
-    }
+    // if (target_pos > max_angles_[i]){
+    //   target_pos = max_angles_[i];
+    // } else if (target_pos < min_angles_[i]) {
+    //   target_pos = min_angles_[i];
+    // }
     ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(target_pos);
     ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(13.0);
     ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.4);
@@ -271,7 +286,8 @@ void RLQuadrupedController::stand(int step, std::vector<float> current_pos)
   std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(step_time_ * 1000)));
 }
 
-void RLQuadrupedController::move(){
+void RLQuadrupedController::move()
+{
   std::vector<float> pos(12), vel(12), ang_vel(3), quat(4);
 
   for (int i = 0; i < 12; ++i)

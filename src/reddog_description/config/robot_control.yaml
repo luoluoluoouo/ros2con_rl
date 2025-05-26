@@ -20,7 +20,7 @@ imu_sensor_broadcaster:
 
 rl_quadruped_controller:
   ros__parameters:
-    update_rate: 200  # Hz
+    update_rate: 50  # Hz
     robot_pkg: "reddog_description"
     model_folder: "legged_gym"
     policy_path: /home/csl/rdog/test_ws/src/reddog_description/config/legged_gym/policy_him2.pt

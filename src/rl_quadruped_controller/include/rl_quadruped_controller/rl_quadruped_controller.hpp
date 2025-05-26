@@ -127,7 +127,7 @@ private:
 
   std::vector<float> cmd_{0.0, 0.0, 0.0};
   std::vector<float> latest_cmd_{0.0, 0.0, 0.0};
-  std::vector<float> sit_angles_, default_angles_, cmd_scale_;
+  std::vector<float> initial_angles_, sit_angles_, default_angles_, cmd_scale_;
   float action_scale_{1.0}, ang_vel_scale_{1.0}, dof_pos_scale_{1.0}, dof_vel_scale_{1.0};
 
   torch::jit::script::Module policy_;
@@ -136,10 +136,8 @@ private:
 
   int one_step_obs_size_{45}, obs_buf_size_{6};
 
-  std::vector<float> max_angles_{1.04, 2.39, -0.1, 1.04, 2.39, -0.1,
-                                 1.04, -0.1, 2.69, 1.04, -0.1, 2.39};
-  std::vector<float> min_angles_{-1.04, 0.1, -2.39, -1.04, 0.1, -2.39,
-                                 -1.04, -2.69, 0.1, -1.04, -2.69, 0.1};
+  std::vector<float> max_angles_{1.04, 2.39, -0.1, 1.04, 2.39, -0.1, 1.04, -0.1, 2.69, 1.04, -0.1, 2.39};
+  std::vector<float> min_angles_{-1.04, 0.1, -2.39, -1.04, 0.1, -2.39, -1.04, -2.69, 0.1, -1.04, -2.69, 0.1};
                          
 
   std::vector<float> current_pos_;
@@ -147,6 +145,9 @@ private:
   int step_ = 0; // 當前步數
   float duration_ = 5.0; // 總執行時間 (秒)
   float step_time_ = duration_ / steps_; // 每步的時間間隔
+
+  std::chrono::high_resolution_clock::time_point start_time_;
+  float running_time_ = 0.0;
 };
 
 }  // namespace rl_quadruped_controller
