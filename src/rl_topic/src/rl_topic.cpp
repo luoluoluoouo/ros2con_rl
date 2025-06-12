@@ -1,9 +1,9 @@
-#include "rl_quadruped_controller/rl_quadruped_controller.hpp"
+#include "rl_topic/rl_topic.hpp"
 
 #include <pluginlib/class_list_macros.hpp>
 #include <yaml-cpp/yaml.h>
 
-namespace rl_quadruped_controller
+namespace rl_topic
 {
 
 RLQuadrupedController::RLQuadrupedController() = default;
@@ -82,6 +82,12 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
         mode_ = msg->data;
       });
 
+    joint_pub_ = node->create_publisher<sensor_msgs::msg::JointState>(
+      "/cmd/joint_states", 10);
+
+    pidgain_pub_ = node->create_publisher<std_msgs::msg::Float32MultiArray>(
+      "/pid_gain", 10);    
+
     joint_names_ = auto_declare<std::vector<std::string>>("joints", joint_names_);
     feet_names_ = auto_declare<std::vector<std::string>>("feet_names", feet_names_);
     command_interface_types_ =
@@ -130,8 +136,6 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
     one_step_obs_size_ = config["one_step_obs_size"].as<int>();
 
     obs_buffer_ = torch::zeros({1, obs_buf_size_ * one_step_obs_size_});
-
-    action_log_.open("/home/csl/rdog/test_ws/src/action_log.csv", std::ios::out);
   }
   catch (const std::exception &e)
   {
@@ -181,7 +185,6 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn RLQuad
     }
 
     current_pos_ = get_current_pos();
-
     // for (int i = 0; i < 12; ++i)
     // {
     //   ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(current_pos_[i]);
@@ -208,32 +211,25 @@ controller_interface::return_type RLQuadrupedController::update(const rclcpp::Ti
   // running_time_ = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time_).count();
 
   // if (running_time_ < 5.0) {
-  //   for (int i = 0; i < 12; ++i)
-  //   {
-  //     ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(initial_angles_[i]);
-  //     ctrl_interfaces_.joint_velocity_command_interface_[i].get().set_value(0.0);
-  //     ctrl_interfaces_.joint_torque_command_interface_[i].get().set_value(0.0);
-  //     ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(13.0);
-  //     ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.4);
-  //   }
+  //   sensor_msgs::msg::JointState joint_state;
+  //   joint_state.header.stamp = get_node()->now();
+  //   joint_state.name = topic_joint_names_;
+  //   joint_state.position = std::vector<double>(initial_angles_.begin(), initial_angles_.end());
+  //   joint_pub_->publish(joint_state);
+
+  //   std_msgs::msg::Float32MultiArray pid_gain;
+  //   pid_gain.data =  {13.0, 0.4}; // Kp, Kd
+  //   pidgain_pub_->publish(pid_gain);
   //   return controller_interface::return_type::OK;
   // }
 
-  auto now = std::chrono::steady_clock::now();
-  if (last_time_.time_since_epoch().count() != 0) {
-    auto duration = std::chrono::duration_cast<std::chrono::duration<double>>(now - last_time_);
-    double frequency = 1.0 / duration.count();  // 計算頻率（Hz）
-    std::cout << "Update frequency: " << frequency << " Hz" << std::endl;
-  }
-  last_time_ = now;
-
-  // current_pos_ = get_current_pos();
-  // std::cout << "Current position: ";
-  // for (const auto& pos : current_pos_) {
-  //   std::cout << pos << " ";
+  // auto now = std::chrono::steady_clock::now();
+  // if (last_time_.time_since_epoch().count() != 0) {
+  //   auto duration = std::chrono::duration_cast<std::chrono::duration<double>>(now - last_time_);
+  //   double frequency = 1.0 / duration.count();  // 計算頻率（Hz）
+  //   std::cout << "Update frequency: " << frequency << " Hz" << std::endl;
   // }
-  // std::cout << std::endl;
-
+  // last_time_ = now;
 
   if (mode_ != prev_mode_) {
     is_mode_change_ = true;
@@ -274,60 +270,73 @@ std::vector<float> RLQuadrupedController::get_current_pos()
 void RLQuadrupedController::sit(int step, std::vector<float> current_pos) 
 {
   if (step < steps_) {
+    std::vector<float> target_pos(12);
+
     double phase = float(step)/float(steps_);
     for (int i = 0; i < 12; ++i)
     {
-      float target_pos = current_pos[i] * float(1 - phase) + sit_angles_[i] * phase;
-      // std::cout << "target_pos[" << i << "]: " << target_pos << std::endl;
-      // if (target_pos > max_angles_[i]){
-      //   target_pos = max_angles_[i];
-      // } else if (target_pos < min_angles_[i]) {
-      //   target_pos = min_angles_[i];
-      // }
-      std::cout << "target_pos" << target_pos << std::endl;
-      ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(target_pos);
-      ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(3.0);
-      ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.1);
-      // ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(13.0);
-      // ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.4);
+      target_pos[i] = current_pos[i] * float(1 - phase) + sit_angles_[i] * phase;
     }
-    // std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(step_time_ * 1000)));
+    target_pos = convert_joint_angles(target_pos);
+
+    sensor_msgs::msg::JointState joint_state;
+    joint_state.header.stamp = get_node()->now();
+    joint_state.name = topic_joint_names_;
+    joint_state.position = std::vector<double>(target_pos.begin(), target_pos.end());
+    joint_pub_->publish(joint_state);
+
+    std_msgs::msg::Float32MultiArray pid_gain;
+    pid_gain.data =  {5.0, 0.4}; // Kp, Kd
+    pidgain_pub_->publish(pid_gain);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(step_time_ * 1000)));
   } else {
-    for (int i = 0; i < 12; ++i)
-    {
-      ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(sit_angles_[i]);
-      ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(3.0);
-      ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.1);
-      // ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(13.0);
-      // ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.4);
-    }
+    sensor_msgs::msg::JointState joint_state;
+    joint_state.header.stamp = get_node()->now();
+    joint_state.name = topic_joint_names_;
+    std::vector<float> sit_angles = convert_joint_angles(sit_angles_);
+    joint_state.position = std::vector<double>(sit_angles.begin(), sit_angles.end());
+    joint_pub_->publish(joint_state);
+
+    std_msgs::msg::Float32MultiArray pid_gain;
+    pid_gain.data =  {13.0, 0.4}; // Kp, Kd
+    pidgain_pub_->publish(pid_gain);
   }
 }
 
 void RLQuadrupedController::stand(int step, std::vector<float> current_pos) 
 {
   if (step < steps_) {
+    std::vector<float> target_pos(12);
+
     double phase = float(step)/float(steps_);
     for (int i = 0; i < 12; ++i)
     {
-      float target_pos = current_pos[i] * float(1 - phase) + default_angles_[i] * phase;
-      // if (target_pos > max_angles_[i]){
-      //   target_pos = max_angles_[i];
-      // } else if (target_pos < min_angles_[i]) {
-      //   target_pos = min_angles_[i];
-      // }
-      ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(target_pos);
-      ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(13.0);
-      ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.4);
+      target_pos[i] = current_pos[i] * float(1 - phase) + default_angles_[i] * phase;
     }
-    // std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(step_time_ * 1000)));
+    target_pos = convert_joint_angles(target_pos);
+
+    sensor_msgs::msg::JointState joint_state;
+    joint_state.header.stamp = get_node()->now();
+    joint_state.name = topic_joint_names_;
+    joint_state.position = std::vector<double>(target_pos.begin(), target_pos.end());
+    joint_pub_->publish(joint_state);
+
+    std_msgs::msg::Float32MultiArray pid_gain;
+    pid_gain.data =  {13.0, 0.4}; // Kp, Kd
+    pidgain_pub_->publish(pid_gain);
+    std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(step_time_ * 1000)));
   } else {
-    for (int i = 0; i < 12; ++i)
-    {
-      ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(default_angles_[i]);
-      ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(13.0);
-      ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.4);
-    }
+    sensor_msgs::msg::JointState joint_state;
+    joint_state.header.stamp = get_node()->now();
+    joint_state.name = topic_joint_names_;
+    std::vector<float> default_angles = convert_joint_angles(default_angles_);
+    joint_state.position = std::vector<double>(default_angles.begin(), default_angles.end());
+    joint_pub_->publish(joint_state);
+
+    std_msgs::msg::Float32MultiArray pid_gain;
+    pid_gain.data =  {13.0, 0.4}; // Kp, Kd
+    pidgain_pub_->publish(pid_gain);
   }
 }
 
@@ -339,13 +348,8 @@ void RLQuadrupedController::move()
   {
     pos[i] = ctrl_interfaces_.joint_position_state_interface_[i].get().get_value();
   }
-  for (int i = 0; i < 12; ++i)
-  {
-    vel[i] = ctrl_interfaces_.joint_velocity_state_interface_[i].get().get_value();
-  }
 
-
-  quat[0] = ctrl_interfaces_.imu_state_interface_/[0].get().get_value();
+  quat[0] = ctrl_interfaces_.imu_state_interface_[0].get().get_value();
   quat[1] = ctrl_interfaces_.imu_state_interface_[1].get().get_value();
   quat[2] = ctrl_interfaces_.imu_state_interface_[2].get().get_value();
   quat[3] = ctrl_interfaces_.imu_state_interface_[3].get().get_value();
@@ -360,7 +364,7 @@ void RLQuadrupedController::move()
 
   std::vector<torch::Tensor> obs_parts = {
     torch::tensor(latest_cmd_) * torch::tensor(cmd_scale_),
-    torch::tensor(ang_vel) * ang_vel_scale_ * 0.3,
+    torch::tensor(ang_vel) * ang_vel_scale_,
     torch::tensor(gravity),
     (torch::tensor(pos) - torch::tensor(default_angles_)) * dof_pos_scale_,
     torch::tensor(vel) * dof_vel_scale_,
@@ -374,17 +378,25 @@ void RLQuadrupedController::move()
   auto action = policy_.forward({obs_buffer_}).toTensor().squeeze();
   prev_action_ = action;
 
-  for (int i = 0; i < 12; ++i) {
-    action_log_ << action[i].item<float>();
-    action_log_ << (i == 11 ? '\n' : ',');
-  }
+  /// 假設 action 是 float tensor
+  std::vector<float> action_vec(action.data_ptr<float>(), action.data_ptr<float>() + action.numel());
 
+  // 轉換順序與符號
+  std::vector<float> converted_action = convert_joint_angles(action_vec);
+
+  sensor_msgs::msg::JointState joint_state;
+  joint_state.header.stamp = get_node()->now();
+  joint_state.name = topic_joint_names_;
+  joint_state.position = {};
   for (int i = 0; i < 12; ++i)
   {
-    ctrl_interfaces_.joint_position_command_interface_[i].get().set_value(action[i].item<float>() * action_scale_ + default_angles_[i]);
-    ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(13.0);
-    ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(0.4);
+    joint_state.position .push_back(default_angles_[i] + converted_action[i] * action_scale_);
   }
+  joint_pub_->publish(joint_state);
+
+  std_msgs::msg::Float32MultiArray pid_gain;
+  pid_gain.data =  {13.0, 0.4}; // Kp, Kd
+  pidgain_pub_->publish(pid_gain);
 
   for (int i = 0; i < 3; ++i)
   {
@@ -392,6 +404,47 @@ void RLQuadrupedController::move()
   }
 }
 
-} // namespace rl_quadruped_controller
+std::vector<float> RLQuadrupedController::convert_joint_angles(const std::vector<float>& dof_pos) {
+    if (dof_pos.size() != 12) {
+        throw std::invalid_argument("Expected 12 joint angles in dof_pos.");
+    }
 
-PLUGINLIB_EXPORT_CLASS(rl_quadruped_controller::RLQuadrupedController, controller_interface::ControllerInterface)
+    // 定義格式順序
+    std::vector<std::string> mapping = {
+        "flh", "frh", "rlh", "rrh",  // Hips
+        "flu", "fru", "rlu", "rru",  // Upper legs
+        "fld", "frd", "rld", "rrd"   // Lower legs
+    };
+
+    std::vector<std::string> format1_order = {
+        "flh", "flu", "fld",
+        "frh", "fru", "frd",
+        "rlh", "rlu", "rld",
+        "rrh", "rru", "rrd"
+    };
+
+    // 建立 mapping 到 index 的對應
+    std::unordered_map<std::string, int> name_to_index;
+    for (size_t i = 0; i < format1_order.size(); ++i) {
+        name_to_index[format1_order[i]] = static_cast<int>(i);
+    }
+
+    // 依照 mapping 順序取值
+    std::vector<float> reordered_dof_pos;
+    for (const auto& name : mapping) {
+        reordered_dof_pos.push_back(dof_pos[name_to_index[name]]);
+    }
+
+    // 對應的符號變換
+    std::vector<float> result = {
+        reordered_dof_pos[0],  reordered_dof_pos[1], -reordered_dof_pos[2], -reordered_dof_pos[3],
+        reordered_dof_pos[4], -reordered_dof_pos[5],  reordered_dof_pos[6], -reordered_dof_pos[7],
+        reordered_dof_pos[8], -reordered_dof_pos[9],  reordered_dof_pos[10], -reordered_dof_pos[11]
+    };
+
+    return result;
+}
+
+} // namespace rl_topic
+
+PLUGINLIB_EXPORT_CLASS(rl_topic::RLQuadrupedController, controller_interface::ControllerInterface)

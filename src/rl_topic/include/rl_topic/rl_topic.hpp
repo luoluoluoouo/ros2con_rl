@@ -5,6 +5,8 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <torch/script.h>
 #include <rclcpp/rclcpp.hpp>
+#include "sensor_msgs/msg/joint_state.hpp"
+#include "std_msgs/msg/float32_multi_array.hpp"
 
 #include <vector>
 #include <hardware_interface/loaned_command_interface.hpp>
@@ -59,7 +61,7 @@ struct CtrlInterfaces
     }
 };
 
-namespace rl_quadruped_controller
+namespace rl_topic
 {
 
 class RLQuadrupedController : public controller_interface::ControllerInterface
@@ -80,10 +82,13 @@ public:
   void sit(int step, std::vector<float> current_pos);
   void stand(int step, std::vector<float> current_pos);
   void move();
+  std::vector<float> convert_joint_angles(const std::vector<float>& dof_pos);
 
 private:
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_sub_;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr mode_sub_;
+  rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_pub_;
+  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr pidgain_pub_;
   std::string mode_ = "sit";
   std::string prev_mode_;
   bool is_mode_change_ = false;
@@ -128,6 +133,7 @@ private:
   std::vector<float> cmd_{0.0, 0.0, 0.0};
   std::vector<float> latest_cmd_{0.0, 0.0, 0.0};
   std::vector<float> initial_angles_, sit_angles_, default_angles_, cmd_scale_;
+  // std::vector<float> target_pos_;
   float action_scale_{1.0}, ang_vel_scale_{1.0}, dof_pos_scale_{1.0}, dof_vel_scale_{1.0};
 
   torch::jit::script::Module policy_;
@@ -141,9 +147,9 @@ private:
                          
 
   std::vector<float> current_pos_;
-  float steps_ = 150.0; // 插值步數
+  float steps_ = 50.0; // 插值步數
   int step_ = 0; // 當前步數
-  float duration_ = 5.0; // 總執行時間 (秒)
+  float duration_ = 3.0; // 總執行時間 (秒)
   double step_time_ = duration_ / steps_; // 每步的時間間隔
   // float step_time_ = 0.01; // 每步的時間間隔 (秒)
 
@@ -152,7 +158,46 @@ private:
 
   std::chrono::steady_clock::time_point last_time_;
 
-  std::ofstream action_log_;
+  // std::vector<std::string> topic_joint_names_{"flh", "flu", "fld",
+  //                                             "rrh", "rru", "rrd",
+  //                                              "rlh", "rlu", "rld",
+  //                                              "frh", "fru", "frd"};
+
+  std::vector<std::string> topic_joint_names_{
+    "flh", "frh", "rlh", "rrh",  // Hips
+    "flu", "fru", "rlu", "rru",  // Upper legs
+    "fld", "frd", "rld", "rrd"   // Lower legs
+  };
+
+  
+
+//   name:
+// - flh
+// - frh
+// - rlh
+// - rrh
+// - flu
+// - fru
+// - rlu
+// - rru
+// - fld
+// - frd
+// - rld
+// - rrd
+// position:
+// - 0.1
+// - -0.1
+// - 0.1
+// - -0.1
+// - 0.785
+// - -0.785
+// - -0.785
+// - 0.785
+// - -1.57
+// - 1.57
+// - 1.57
+// - -1.57
+
 };
 
-}  // namespace rl_quadruped_controller
+}  // namespace rl_topic

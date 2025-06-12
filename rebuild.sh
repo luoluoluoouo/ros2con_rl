@@ -1,3 +1,4 @@
-rm -rf install/ log/ build/
-colcon build --symlink-install
+colcon build --packages-select hardware_unitree_mujoco
+colcon build --packages-select reddog_description
+colcon build --packages-select rl_quadruped_controller
 source install/setup.bash
